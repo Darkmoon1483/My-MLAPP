@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Classifier</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-color: #333;
+            --nav-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+            height: 100%;
+            width: 100%;
+            /* พื้นหลังไล่สีสวยๆ */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Navigation Bar แบบกระจก --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--nav-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        nav a.active-link {
+            background: white;
+            color: #764ba2;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* --- Main Layout --- */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: calc(var(--nav-height) + 20px) 20px 20px;
+        }
+
+        /* --- Card Content --- */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            text-align: center;
+            display: none; /* ซ่อนไว้ก่อน */
+            animation: slideUp 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .card.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* --- Elements ในหน้า Check --- */
+        input[type="file"] { display: none; }
+
+        .btn-upload {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(118, 75, 162, 0.4);
+            border: none;
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 25px rgba(118, 75, 162, 0.5);
+        }
+
+        .btn-upload.disabled {
+            background: #ccc;
+            pointer-events: none;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #result-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #result-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .highlight {
+            color: #764ba2;
+            font-size: 1.8rem;
+        }
+
+        #status {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* --- Footer Credit --- */
+        .credit {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a onclick="showPage('home')" id="link-home" class="active-link">หน้าแรก</a>
+        <a onclick="showPage('check')" id="link-check">ตรวจสอบ</a>
+        <a onclick="showPage('about')" id="link-about">เกี่ยวกับเรา</a>
+    </nav>
+
+    <div class="container">
+        
+        <div id="home" class="card active">
+            <h1>AI VISION</h1>
+            <p>ยินดีต้อนรับสู่ระบบจำแนกรูปภาพอัจฉริยะ</p>
+            <p style="margin-top: 20px;">
+                ระบบของเราใช้เทคโนโลยี Deep Learning<br>
+                เพื่อวิเคราะห์และระบุสิ่งที่อยู่ในภาพได้อย่างรวดเร็ว
+            </p>
+            <button class="btn-upload" onclick="showPage('check')">เริ่มใช้งานทันที</button>
+        </div>
+
+        <div id="check" class="card">
+            <h1>ตรวจสอบรูปภาพ</h1>
+            
+            <div id="status" style="color: #e67e22;">
+                <span class="loader"></span> กำลังเตรียมสมอง AI...
+            </div>
+
+            <label for="file-input" id="upload-btn" class="btn-upload disabled">
+                <i class="fas fa-camera"></i> เลือกรูปภาพ
+            </label>
+            <input id="file-input" type="file" accept="image/*" onchange="handleImageUpload(event)">
+
+            <img id="image-preview" style="display:none;" />
+
+            <div id="result-box">
+                <span id="result-text">รอการอัปโหลด...</span>
+            </div>
+        </div>
+
+        <div id="about" class="card">
+            <h1>เกี่ยวกับเรา</h1>
+            <p>
+                <b>Project AI Classifier</b><br>
+                เว็บไซต์นี้เป็นส่วนหนึ่งของการศึกษาเทคโนโลยี Machine Learning
+            </p>
+            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+            <p style="font-size: 0.9rem;">
+                Powered by<br>
+                <b style="color:#764ba2;">Teachable Machine</b> & <b style="color:#f7b731;">TensorFlow.js</b>
+            </p>
+            <div class="credit">Developed with ❤️ by YourName</div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+    <script>
+        // --- Navigation Logic ---
+        function showPage(pageId) {
+            // Remove active class from all pages
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('active');
+            });
+            // Remove active style from nav links
+            document.querySelectorAll('nav a').forEach(link => {
+                link.classList.remove('active-link');
+            });
+
+            // Add active class to selected page (triggering animation)
+            setTimeout(() => {
+                document.getElementById(pageId).classList.add('active');
+            }, 50); // Small delay for smoother feel
+
+            // Update Nav Link
+            document.getElementById('link-' + pageId).classList.add('active-link');
+        }
+
+        // --- AI Logic ---
+        const URL = "https://teachablemachine.withgoogle.com/models/MSEfZqPxp/";
+        let model, maxPredictions;
+
+        init();
+
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            try {
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+
+                const statusLabel = document.getElementById("status");
+                statusLabel.innerHTML = "✨ ระบบพร้อมทำงานแล้ว";
+                statusLabel.style.color = "#27ae60"; // Green color
+                
+                document.getElementById("upload-btn").classList.remove("disabled");
+            } catch (error) {
+                document.getElementById("status").innerText = "เกิดข้อผิดพลาดในการโหลดโมเดล";
+            }
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // UI Feedback
+            const resultBox = document.getElementById("result-text");
+            resultBox.innerHTML = "⏳ กำลังวิเคราะห์...";
+            resultBox.style.color = "#777";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = document.getElementById("image-preview");
+                imgElement.src = e.target.result;
+
+                imgElement.onload = function() {
+                    predict();
+                }
+            };
+            reader.readAsDataURL(file);
+            event.target.value = ''; 
+        }
+
+        async function predict() {
+            const imgElement = document.getElementById("image-preview");
+            const prediction = await model.predict(imgElement);
+            
+            let highestProb = 0;
+            let bestClass = "";
+
+            for (let i = 0; i < maxPredictions; i++) {
+                if (prediction[i].probability > highestProb) {
+                    highestProb = prediction[i].probability;
+                    bestClass = prediction[i].className;
+                }
+            }
+
+            // แสดงผลลัพธ์แบบสวยงาม
+            const percentage = (highestProb * 100).toFixed(1);
+            const resultHTML = `
+                <div>
+                    คือ <span class="highlight">${bestClass}</span><br>
+                    <span style="font-size:0.9rem; color:#888;">ความมั่นใจ ${percentage}%</span>
+                </div>
+            `;
+            
+            document.getElementById("result-text").innerHTML = resultHTML;
+            document.getElementById("result-text").style.color = "#333";
+        }
+    </script>
+
+</body>
+</html>ึ
