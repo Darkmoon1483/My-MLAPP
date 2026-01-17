@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตรวจสอบ - AI Smart Classifier</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <a href="index.html">หน้าแรก</a>
+        <a href="check.html" class="active-link">ตรวจสอบ</a>
+        <a href="about.html">เกี่ยวกับเรา</a>
+    </nav>
+
+    <div class="container">
+        
+        <div class="card active">
+            <h1>ตรวจสอบรูปภาพ</h1>
+            
+            <div id="status" style="color: #e67e22;">
+                กำลังเตรียมสมอง AI...
+            </div>
+
+            <label for="file-input" id="upload-btn" class="btn-upload disabled">
+                <i class="fas fa-camera"></i> เลือกรูปภาพ
+            </label>
+            <input id="file-input" type="file" accept="image/*" onchange="handleImageUpload(event)">
+
+            <img id="image-preview" style="display:none;" alt="preview" />
+
+            <div id="result-box">
+                <span id="result-text">รอการอัปโหลด...</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
